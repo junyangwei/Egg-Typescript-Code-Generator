@@ -25,9 +25,17 @@ export const UnnessaryCreateParams = [
 export default class CodeGeneratorService extends Service {
   private knex: Knex;
 
+  /**
+   * 代码生成主函数
+   * @param codeGeneratorConfig 代码生成所需配置数据
+   */
   async codeGenerator(codeGeneratorConfig: CodeGeneratorConfig) {
+    // 连接MySQL数据库
     await this.connectDB(codeGeneratorConfig.dbConnectConfig);
+
+    // 生成Controller层TS文件
     await this.buildControllerTypescriptFile(codeGeneratorConfig);
+
     return codeGeneratorConfig;
   }
 
