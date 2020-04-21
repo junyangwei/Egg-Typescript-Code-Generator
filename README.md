@@ -1,6 +1,6 @@
-# hackernews-async-ts
+# Egg-Typescript-Code-Generator
 
-[Hacker News](https://news.ycombinator.com/) showcase using typescript && egg
+egg typescript code generator
 
 ## QuickStart
 
@@ -31,3 +31,24 @@ $ npm start
 
 - Node.js 8.x
 - Typescript 2.8+
+
+### How To Use
+```bash
+$ npm run dev
+```
+
+```call interface
+POST    /api/1/code_generator
+Reuqest Body:
+{
+    "author": "UncleYang",
+    "table_name": "your_table_name",
+    "table_annotation": "your_table_annotation",
+    "db_host": "Your database host",
+    "db_port": "Your database port",
+    "db_user": "Your database user",
+    "db_password": "Your database password",
+    "db_name": "Your database name",
+    "disk_path": "Your project main path which need to code generate"
+}
+```
