@@ -43,6 +43,9 @@ export default class CodeGeneratorService extends Service {
     // 生成Dao层TS文件
     await this.buildDaoTypescriptFile(codeGeneratorConfig);
 
+    // 生成Type层TS文件
+    await this.buildTypeTypescriptFile(codeGeneratorConfig);
+
     return codeGeneratorConfig;
   }
 
@@ -216,7 +219,7 @@ export default class CodeGeneratorService extends Service {
   }
 
   /**
-   * 生成Service层TS文件
+   * 生成Dao层TS文件
    */
   async buildDaoTypescriptFile(config: CodeGeneratorConfig) {
     // 获取模版文件，并转换成字符串
@@ -256,6 +259,53 @@ export default class CodeGeneratorService extends Service {
     // 写入文件
     fs.appendFile(
       `${config.diskPath}/dao/${config.tableName}.ts`,
+      resultFile, 'utf8',
+      function(err) {
+        if (err) {
+          throw err;
+        }
+      },
+    );
+  }
+
+  /**
+   * 生成Type层TS文件
+   */
+  async buildTypeTypescriptFile(config: CodeGeneratorConfig) {
+    // 获取模版文件，并转换成字符串
+    const data = fs.readFileSync(`${config.diskPath}/template/Type.ftl`);
+    const file = data.toString();
+
+    // 获取数据库表名首字母大写格式（示例：TableName）
+    const upperCaseTableName = this.upperCaseField(
+      config.tableName,
+      true,
+    );
+
+    // 获取数据库表字段信息
+    const columnItems: DBColumnItem[] = await this.getColumnItem(config.tableName);
+
+    // 构建输入参数及创建类参数
+    let columnNames = '';
+    for (let i = 0; i < columnItems.length; i += 1) {
+      const column = columnItems[i];
+
+      columnNames += NumberDataTypes.includes(column.dataType)
+        ? `  ${column.columnName}: number;\n`
+        : `  ${column.columnName}: string;\n`;
+    }
+
+    // 去除最后一个换行符
+    columnNames = columnNames.substring(0, columnNames.length - 1);
+
+    // 替换模版参数为需要的数据
+    const resultFile = file
+      .replace(/\${TableName}/g, upperCaseTableName)
+      .replace(/\${columnNames}/g, columnNames);
+
+    // 写入文件
+    fs.appendFile(
+      `${config.diskPath}/typings/${config.tableName}.ts`,
       resultFile, 'utf8',
       function(err) {
         if (err) {

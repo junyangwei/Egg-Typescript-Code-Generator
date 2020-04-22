@@ -1,7 +1,7 @@
 import { Service, Context } from 'egg';
 import * as assert from 'assert';
 import ${TableName}Dao from '../dao/TODO/${table_name}';
-import { ${TableName}Item } from '../typings/${table_name}';
+import { ${TableName} } from '../typings/${table_name}';
 
 /**
  * @description ${TableName} 服务层
@@ -23,7 +23,7 @@ export default class ${TableName}Service extends Service {
   async get${TableName}(id: number) {
     assert(id, '缺少参数:id');
 
-    const ${tableName}: ${TableName}Item = await this.${tableName}Dao.get${TableName}(
+    const ${tableName}: ${TableName} = await this.${tableName}Dao.get${TableName}(
       id,
     );
 
