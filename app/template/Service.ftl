@@ -1,7 +1,7 @@
 import { Service, Context } from 'egg';
 import * as assert from 'assert';
 import ${TableName}Dao from '../dao/TODO/${table_name}';
-import { ${TableName} } from '../typings/${table_name}';
+import { ${TableName} } from '../types/${table_name}';
 
 /**
  * @description ${TableName} 服务层
