@@ -13,6 +13,7 @@ export const NumberDataTypes = [
   DataTypes.Float,
   DataTypes.Double,
   DataTypes.Decimal,
+  DataTypes.Year,
 ];
 
 // 定义不需要创建的参数
@@ -35,6 +36,9 @@ export default class CodeGeneratorService extends Service {
 
     // 生成Controller层TS文件
     await this.buildControllerTypescriptFile(codeGeneratorConfig);
+
+    // 生成Service层TS文件
+    await this.buildServiceTypescriptFile(codeGeneratorConfig);
 
     return codeGeneratorConfig;
   }
@@ -126,6 +130,79 @@ export default class CodeGeneratorService extends Service {
     // 写入文件
     fs.appendFile(
       `${config.diskPath}/controller/${config.tableName}.ts`,
+      resultFile, 'utf8',
+      function(err) {
+        if (err) {
+          throw err;
+        }
+      },
+    );
+  }
+
+  /**
+   * 生成Service层TS文件
+   */
+  async buildServiceTypescriptFile(config: CodeGeneratorConfig) {
+    // 获取模版文件，并转换成字符串
+    const data = fs.readFileSync(`${config.diskPath}/template/Service.ftl`);
+    const file = data.toString();
+
+    // 获取数据库表名首字母大写格式（示例：TableName）
+    const upperCaseTableName = this.upperCaseField(
+      config.tableName,
+      true,
+    );
+    // 获取数据库表名首字母小写格式（示例：tableName）
+    const lowerCaseTableName = this.upperCaseField(
+      config.tableName,
+      false,
+    );
+
+    // 获取数据库表字段信息
+    const columnItems: DBColumnItem[] = await this.getColumnItem(config.tableName);
+
+    // 构建输入参数及创建类参数
+    let inputCreateParams = '';
+    let createParams = '';
+    for (let i = 0; i < columnItems.length; i += 1) {
+      const column = columnItems[i];
+      const camelCaseColumnName = this.upperCaseField(
+        column.columnName,
+        false,
+      );
+
+      const columnType = NumberDataTypes.includes(column.dataType)
+        ? `${column.columnName}: Number(${camelCaseColumnName}) || 0`
+        : `${column.columnName}: String(${camelCaseColumnName}) || ''`;
+
+      if (UnnessaryCreateParams.includes(column.columnName)) {
+        continue;
+      }
+
+      inputCreateParams += NumberDataTypes.includes(column.dataType)
+        ? `    ${camelCaseColumnName}: number,\n`
+        : `    ${camelCaseColumnName}: string,\n`;
+      createParams += `        ${columnType},\n`;
+    }
+
+    // 去除最后一个换行符
+    inputCreateParams = inputCreateParams.substring(0, inputCreateParams.length - 1);
+    createParams = createParams.substring(0, createParams.length - 1);
+
+    // 替换模版参数为需要的数据
+    const resultFile = file
+      .replace(/\${TableName}/g, upperCaseTableName)
+      .replace(/\${tableName}/g, lowerCaseTableName)
+      .replace(/\${author}/g, config.author)
+      .replace(/\${date}/g, moment().format('YYYY-MM-DD'))
+      .replace(/\${tableAnnotation}/g, config.tableAnnotation)
+      .replace(/\${table_name}/g, config.tableName)
+      .replace(/\${inputCreateParams}/g, inputCreateParams)
+      .replace(/\${createParams}/g, createParams);
+
+    // 写入文件
+    fs.appendFile(
+      `${config.diskPath}/service/${config.tableName}.ts`,
       resultFile, 'utf8',
       function(err) {
         if (err) {
