@@ -1,8 +1,11 @@
 import { Service } from 'egg';
+import * as path from 'path';
 import * as fs from 'fs';
 import * as moment from 'moment';
 import Knex = require('knex');
 import { CodeGeneratorConfig, DBConnectConfig, DBColumnItem, DataTypes } from '../typings/common';
+
+const localProjectPath = path.join(__dirname, '..');
 
 export const NumberDataTypes = [
   DataTypes.Int,
@@ -78,7 +81,7 @@ export default class CodeGeneratorService extends Service {
    */
   async buildControllerTypescriptFile(config: CodeGeneratorConfig) {
     // 获取模版文件，并转换成字符串
-    const data = fs.readFileSync(`${config.diskPath}/template/Controller.ftl`);
+    const data = fs.readFileSync(`${localProjectPath}/template/Controller.ftl`);
     const file = data.toString();
 
     // 获取数据库表名首字母大写格式（示例：TableName）
@@ -150,7 +153,7 @@ export default class CodeGeneratorService extends Service {
    */
   async buildServiceTypescriptFile(config: CodeGeneratorConfig) {
     // 获取模版文件，并转换成字符串
-    const data = fs.readFileSync(`${config.diskPath}/template/Service.ftl`);
+    const data = fs.readFileSync(`${localProjectPath}/template/Service.ftl`);
     const file = data.toString();
 
     // 获取数据库表名首字母大写格式（示例：TableName）
@@ -223,7 +226,7 @@ export default class CodeGeneratorService extends Service {
    */
   async buildDaoTypescriptFile(config: CodeGeneratorConfig) {
     // 获取模版文件，并转换成字符串
-    const data = fs.readFileSync(`${config.diskPath}/template/Dao.ftl`);
+    const data = fs.readFileSync(`${localProjectPath}/template/Dao.ftl`);
     const file = data.toString();
 
     // 获取数据库表名首字母大写格式（示例：TableName）
@@ -273,7 +276,7 @@ export default class CodeGeneratorService extends Service {
    */
   async buildTypeTypescriptFile(config: CodeGeneratorConfig) {
     // 获取模版文件，并转换成字符串
-    const data = fs.readFileSync(`${config.diskPath}/template/Type.ftl`);
+    const data = fs.readFileSync(`${localProjectPath}/template/Type.ftl`);
     const file = data.toString();
 
     // 获取数据库表名首字母大写格式（示例：TableName）
@@ -305,7 +308,7 @@ export default class CodeGeneratorService extends Service {
 
     // 写入文件
     fs.appendFile(
-      `${config.diskPath}/typings/${config.tableName}.ts`,
+      `${config.diskPath}/types/${config.tableName}.ts`,
       resultFile, 'utf8',
       function(err) {
         if (err) {
